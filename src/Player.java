@@ -4,18 +4,15 @@ public class Player {
     private int score;
     private boolean hasGoneAround;
 
-    public static final HashMap<Integer, Integer> storageHole = new HashMap<>();
+    public static final HashMap<Integer, Integer> STORAGE_HOLE = new HashMap<>();
     static {
-        storageHole.put(0,7);
-        storageHole.put(1,15);
+        STORAGE_HOLE.put(0,7);
+        STORAGE_HOLE.put(1,15);
     }
 
-    public static final HashMap<Integer, Integer> opponentNumber = new HashMap<>();
-    static {
-        opponentNumber.put(0,1);
-        opponentNumber.put(1,0);
+    public static int getOpponentNumber(int number){
+        return number ^ 1;
     }
-
 
     public Player(int score){
         this.score = score;

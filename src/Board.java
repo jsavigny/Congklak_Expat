@@ -40,6 +40,7 @@ public class Board {
         // Set winner side
         for (int i = Player.STORAGE_HOLE.get(winner) - 1; i >= Player.STORAGE_HOLE.get(winner) - 7; i--){
             holes.get(i).setSeeds(7);
+            holes.get(i).setNgacang(false);
         }
         holes.get(Player.STORAGE_HOLE.get(winner)).addSeeds(-49);
 

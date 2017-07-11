@@ -60,15 +60,16 @@ public class Game {
 
     public void printGame(){
         setPlayerScores();
+        System.out.println(board);
+        System.out.println("Round   : "+roundNumber);
         System.out.println("Turn    : Player "+(turn+1));
         System.out.println("Score   :");
         System.out.println("    Player 1: "+Players.get(0).getScore());
         System.out.println("    Player 2: "+Players.get(1).getScore());
-        System.out.println(board);
     }
 
     private boolean isInMyZone(int index){
-        return (((turn == 0) && (index <= 6 && index >= 0)) || ((turn == 1) && (index <= 14 && index >= 8)));
+        return (index >= Player.STORAGE_HOLE.get(turn) - 7 && index < Player.STORAGE_HOLE.get(turn));
     }
 
     private void snipe(int index){
@@ -82,14 +83,21 @@ public class Game {
         }
     }
 
-    private boolean isRunOutOfMoves(){
-        boolean isRunOut = true;
-        for (int i = Player.STORAGE_HOLE.get(turn) - 7; i < Player.STORAGE_HOLE.get(turn); i++){
-            if (canPickShellsHere(i)){
-                isRunOut = false;
+    private boolean isOutOfShells(){
+        boolean isOut = false;
+        int [] sums = new int[2];
+        for (int i = 0; i < 2; i++){
+            for (int j = Player.STORAGE_HOLE.get(i) - 7; j < Player.STORAGE_HOLE.get(i); j++){
+                if (!board.getHoles().get(j).isNgacang()){
+                    sums[i] += board.getHoles().get(j).getSeeds();
+                }
+            }
+            if (sums[i] == 0){
+                isOut = true;
+                turn = i;
             }
         }
-        return  isRunOut;
+        return isOut;
     }
 
     private void sweepBoard(){
@@ -99,7 +107,6 @@ public class Game {
                 sum += board.getHoles().get(i).getSeeds();
                 board.getHoles().get(i).setSeeds(0);
             }
-            System.out.println(sum);
             board.getHoles().get(Player.STORAGE_HOLE.get(side)).addSeeds(sum);
         }
     }
@@ -114,9 +121,7 @@ public class Game {
         System.out.println("New Round!");
         System.out.println("Round "+roundNumber);
         board.initializeBoard(playerWon());
-
     }
-
 
     public void playRound(){
         if (roundNumber != 1){
@@ -128,19 +133,24 @@ public class Game {
             int index = getIndexAI();
             distributeSeeds(index);
             isEndRound = isGameOver();
-            if (isRunOutOfMoves()){
+            if (isOutOfShells()){
                 isEndRound = true;
+                System.out.println("Player "+(turn+1)+" is out of move (kalah jalan)");
                 switchTurn();
                 sweepBoard();
-                printGame();
-                System.out.println("Round "+roundNumber+" ends.");
-                System.out.println("Do you want to continue? (type \"no\" to exit)");
-                Scanner scan = new Scanner(System.in);
-                String s = scan.next();
-                if (s.equalsIgnoreCase("no")){
+                System.out.println(board);
+                if (board.getHoles().get(Player.STORAGE_HOLE.get(0)).getSeeds() == 0 || board.getHoles().get(Player.STORAGE_HOLE.get(1)).getSeeds() == 0){
                     setGameOver(true);
+                } else {
+                    System.out.println("Round " + roundNumber + " ends.");
+                    System.out.println("Do you want to continue? (type \"no\" to exit)");
+                    Scanner scan = new Scanner(System.in);
+                    String s = scan.next();
+                    if (s.equalsIgnoreCase("no")) {
+                        setGameOver(true);
+                    }
+                    roundNumber++;
                 }
-                roundNumber ++;
             }
         }
     }
@@ -151,7 +161,7 @@ public class Game {
     }
 
     private boolean canDropShellsHere(int index){
-        boolean isEnemyStorageHole = ((turn == 0) && ((index) == 15)) || ((turn == 1) && ((index) == 7));
+        boolean isEnemyStorageHole = ((index) == Player.STORAGE_HOLE.get(Player.getOpponentNumber(turn)));
         boolean isNgacang = board.getHoles().get(index).isNgacang() && !isInMyZone(index);
         return !isEnemyStorageHole && !isNgacang;
     }
@@ -172,10 +182,9 @@ public class Game {
                 }
                 board.getHoles().get(index).addSeeds(1);
             }
-            if (index == 7 || index == 15 || board.getHoles().get(index).isNgacang()){ // Is in storage hole atau hole ngacang, lanjut milih
+            if (index == Player.STORAGE_HOLE.get(0) || index == Player.STORAGE_HOLE.get(1)){ // Is in storage hole atau hole ngacang (?), lanjut milih
                 isEndTurn = true;
-            }
-            else if (board.getHoles().get(index).getSeeds() != 1) { // Tidak kosong, lanjut main dengan mengambil
+            } else if (board.getHoles().get(index).getSeeds() != 1) { // Tidak kosong, lanjut main dengan mengambil
                 // Carry on
                 System.out.println(board);
             } else if (board.getHoles().get(index).getSeeds() == 1){ // Kosong
@@ -221,7 +230,7 @@ public class Game {
             while (!canPickShellsHere(index)) {
 //                System.out.println("Invalid Move!");
                 Random rand = new Random();
-                index  = rand.nextInt((14 - 8) + 1) + 8;
+                index  = rand.nextInt(7) + 8;
             }
             System.out.println("Computer picked: "+index);
         }

@@ -124,11 +124,11 @@ public class Game {
     private void snipe(int index){
         System.out.println("Player "+ (turn+1) + " is sniping! "+ index);
         int oppositeIndex = 14 - (index);
-        board.getHoles().get(board.getPlayerStorageHoleIndex(turn)).addSeeds(board.getHoles().get(index).getSeeds());
-        board.getHoles().get(index).setSeeds(0);
+        board.getHoles().get(board.getPlayerStorageHoleIndex(turn)).addShells(board.getHoles().get(index).getShells());
+        board.getHoles().get(index).setShells(0);
         if (!board.getHoles().get(oppositeIndex).isNgacang()) {
-            board.getHoles().get(board.getPlayerStorageHoleIndex(turn)).addSeeds(board.getHoles().get(oppositeIndex).getSeeds());
-            board.getHoles().get(oppositeIndex).setSeeds(0);
+            board.getHoles().get(board.getPlayerStorageHoleIndex(turn)).addShells(board.getHoles().get(oppositeIndex).getShells());
+            board.getHoles().get(oppositeIndex).setShells(0);
         }
     }
 
@@ -143,7 +143,7 @@ public class Game {
         for (int i = 0; i < 2; i++){
             for (int j = board.getPlayerStorageHoleIndex(i) - 7; j < board.getPlayerStorageHoleIndex(i); j++){
                 if (!board.getHoles().get(j).isNgacang()){
-                    sums[i] += board.getHoles().get(j).getSeeds();
+                    sums[i] += board.getHoles().get(j).getShells();
                 }
             }
             if (sums[i] == 0){
@@ -159,7 +159,7 @@ public class Game {
      */
     private void setPlayerScores(){
         for (int i = 0; i < 2; i++){
-            Players.get(i).setScore(board.getHoles().get(board.getPlayerStorageHoleIndex(i)).getSeeds());
+            Players.get(i).setScore(board.getHoles().get(board.getPlayerStorageHoleIndex(i)).getShells());
         }
     }
 
@@ -184,7 +184,7 @@ public class Game {
         while (!isEndRound){
             printGame();
             int index = getIndex();
-            distributeSeeds(index);
+            distributeShells(index);
             isEndRound = isGameOver();
             if (isOutOfShells()){
                 isEndRound = true;
@@ -192,7 +192,7 @@ public class Game {
                 switchTurn();
                 board.sweepBoard();
                 System.out.println(board);
-                if (board.getHoles().get(board.getPlayerStorageHoleIndex(0)).getSeeds() == 0 || board.getHoles().get(board.getPlayerStorageHoleIndex(1)).getSeeds() == 0){
+                if (board.getHoles().get(board.getPlayerStorageHoleIndex(0)).getShells() == 0 || board.getHoles().get(board.getPlayerStorageHoleIndex(1)).getShells() == 0){
                     setGameOver(true);
                 } else {
                     System.out.println("Round " + roundNumber + " ends.");
@@ -217,19 +217,19 @@ public class Game {
     }
 
     /**
-     * Method for jalan, distributing the seeds from the index clockwise along the board
+     * Method for jalan, distribute shells from the index clockwise along the board
      * Ignoring other player's storage hole
      * Keep running until the last shell is dropped on an empty hole / on owned storage hole
      * @param index the index of hole to start the jalan
      */
-    private void distributeSeeds(int index){
+    private void distributeShells(int index){
         boolean isEndTurn = isGameOver();
         int firstIndex = index;
         int latestIndex = index;
         while (!isEndTurn) {
-            System.out.println("Player "+ (turn+1) + " is taking shells from " + index);
-            int hand = board.getHoles().get(index).getSeeds();
-            board.getHoles().get(index).setSeeds(0);
+            int hand = board.getHoles().get(index).getShells();
+            System.out.println("Player "+ (turn+1) + " is taking " + hand + " shells from " + index);
+            board.getHoles().get(index).setShells(0);
             for (int i = hand; i > 0; i--) {
                 latestIndex++;
                 index = latestIndex % 16;
@@ -237,15 +237,15 @@ public class Game {
                     latestIndex++;
                     index = latestIndex % 16;
                 }
-                board.getHoles().get(index).addSeeds(1);
+                board.getHoles().get(index).addShells(1);
             }
             System.out.println("Player "+ (turn+1) + " is dropping the last shell in " + index);
             if (board.getHoles().get(index).isStorage()){ // Is in storage hole atau hole ngacang (?), lanjut milih
                 isEndTurn = true;
-            } else if (board.getHoles().get(index).getSeeds() != 1) { // Tidak kosong, lanjut main dengan mengambil
+            } else if (board.getHoles().get(index).getShells() != 1) { // Tidak kosong, lanjut main dengan mengambil
                 // Carry on
                 System.out.println(board);
-            } else if (board.getHoles().get(index).getSeeds() == 1){ // Kosong
+            } else if (board.getHoles().get(index).getShells() == 1){ // Kosong
                 if (latestIndex-firstIndex >= 16){ // Udah muter sekali
                     getActivePlayer().setHasGoneAround(true);
                 }
@@ -265,7 +265,7 @@ public class Game {
      * @return true if the player can pick the shells, according to the rule, false otherwise
      */
     private boolean canPickShellsHere(int index){
-        return isInMyZone(index) && !board.getHoles().get(index).isNgacang() && board.getHoles().get(index).getSeeds() != 0;
+        return isInMyZone(index) && !board.getHoles().get(index).isNgacang() && board.getHoles().get(index).getShells() != 0;
     }
 
     /**
@@ -320,9 +320,9 @@ public class Game {
      * @return the player with most shells.
      */
     public int playerWithMostShells(){
-        if (board.getHoles().get(board.getPlayerStorageHoleIndex(0)).getSeeds() == board.getHoles().get(board.getPlayerStorageHoleIndex(1)).getSeeds()){
+        if (board.getHoles().get(board.getPlayerStorageHoleIndex(0)).getShells() == board.getHoles().get(board.getPlayerStorageHoleIndex(1)).getShells()){
             return -1;
-        } else if (board.getHoles().get(board.getPlayerStorageHoleIndex(0)).getSeeds() > board.getHoles().get(board.getPlayerStorageHoleIndex(1)).getSeeds()){
+        } else if (board.getHoles().get(board.getPlayerStorageHoleIndex(0)).getShells() > board.getHoles().get(board.getPlayerStorageHoleIndex(1)).getShells()){
             return 0;
         } else {
             return 1;

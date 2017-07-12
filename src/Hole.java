@@ -2,31 +2,31 @@
  * Class representation of a hole
  */
 public class Hole {
-    private int seeds;
+    private int shells;
     private boolean isNgacang;
     private boolean isStorage;
 
     /**
      * Constructor
      * @param isStorage is this hole a storage hole?
-     * @param seeds how many seed to initialize in this hole
+     * @param shells how many shells to initialize in this hole
      */
-    public Hole(boolean isStorage, int seeds){
+    public Hole(boolean isStorage, int shells){
         this.isStorage = isStorage;
-        this.seeds = seeds;
+        this.shells = shells;
         this.isNgacang = false;
     }
 
-    public void addSeeds(int seeds){
-        this.seeds += seeds;
+    public void addShells(int shells){
+        this.shells += shells;
     }
 
-    public int getSeeds() {
-        return seeds;
+    public int getShells() {
+        return shells;
     }
 
-    public void setSeeds(int seeds) {
-        this.seeds = seeds;
+    public void setShells(int shells) {
+        this.shells = shells;
     }
 
     public boolean isNgacang() {
@@ -55,8 +55,8 @@ public class Hole {
         if (this.isNgacang){
             kacang = "n";
         }
-        String seedsNum = String.format("%02d", this.seeds);
-        s = "< "+seedsNum+kacang+">";
+        String shellsNum = String.format("%02d", this.shells);
+        s = "< "+shellsNum+kacang+">";
         return s;
     }
 }

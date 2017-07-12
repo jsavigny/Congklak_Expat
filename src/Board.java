@@ -40,7 +40,7 @@ public class Board {
      */
     public void initializeBoard(){
         int winner;
-        if (holes.get(getPlayerStorageHoleIndex(0)).getSeeds() > holes.get(getPlayerStorageHoleIndex(1)).getSeeds()){
+        if (holes.get(getPlayerStorageHoleIndex(0)).getShells() > holes.get(getPlayerStorageHoleIndex(1)).getShells()){
             winner = 0;
         } else {
             winner = 1;
@@ -48,25 +48,25 @@ public class Board {
         int loser = Player.getOpponentNumber(winner);
         // Set winner side
         for (int i = getPlayerStorageHoleIndex(winner) - 1; i >= getPlayerStorageHoleIndex(winner) - 7; i--){
-            holes.get(i).setSeeds(7);
+            holes.get(i).setShells(7);
             holes.get(i).setNgacang(false);
         }
-        holes.get(getPlayerStorageHoleIndex(winner)).addSeeds(-49);
+        holes.get(getPlayerStorageHoleIndex(winner)).addShells(-49);
 
         // Set loser side
-        int loserSeeds = holes.get(getPlayerStorageHoleIndex(loser)).getSeeds();
-        int fullyFilledHoles = loserSeeds / 7;
+        int loserShells = holes.get(getPlayerStorageHoleIndex(loser)).getShells();
+        int fullyFilledHoles = loserShells / 7;
         int ngacangHoles = min(3, 7 - fullyFilledHoles);
         for (int i = getPlayerStorageHoleIndex(loser) - 1; i >= getPlayerStorageHoleIndex(loser) - fullyFilledHoles; i--){
-            holes.get(i).setSeeds(7);
+            holes.get(i).setShells(7);
         }
 
-        int remSeeds = loserSeeds % 7;
+        int remShells = loserShells % 7;
         int unfullyFilledHoles = 7 - fullyFilledHoles;
         for (int i = getPlayerStorageHoleIndex(loser) - fullyFilledHoles - 1; i >= getPlayerStorageHoleIndex(loser) - 7; i--){
-            int val = (remSeeds + unfullyFilledHoles - 1) / unfullyFilledHoles;
-            holes.get(i).setSeeds(val);
-            remSeeds -= val;
+            int val = (remShells + unfullyFilledHoles - 1) / unfullyFilledHoles;
+            holes.get(i).setShells(val);
+            remShells -= val;
             unfullyFilledHoles--;
         }
         for (int i = getPlayerStorageHoleIndex(loser) - 7; i < getPlayerStorageHoleIndex(loser) - 7 + ngacangHoles; i++){
@@ -75,7 +75,7 @@ public class Board {
         for (int i = getPlayerStorageHoleIndex(loser) - 7 + ngacangHoles; i < getPlayerStorageHoleIndex(loser); i++){
             holes.get(i).setNgacang(false);
         }
-        holes.get(getPlayerStorageHoleIndex(loser)).setSeeds(0);
+        holes.get(getPlayerStorageHoleIndex(loser)).setShells(0);
     }
 
     /**
@@ -85,10 +85,10 @@ public class Board {
         for (int side = 0; side < 2; side++) {
             int sum = 0;
             for (int i = getPlayerStorageHoleIndex(side) - 7; i < getPlayerStorageHoleIndex(side); i++) {
-                sum += holes.get(i).getSeeds();
-                holes.get(i).setSeeds(0);
+                sum += holes.get(i).getShells();
+                holes.get(i).setShells(0);
             }
-            holes.get(getPlayerStorageHoleIndex(side)).addSeeds(sum);
+            holes.get(getPlayerStorageHoleIndex(side)).addShells(sum);
         }
     }
 

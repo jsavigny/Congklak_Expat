@@ -127,7 +127,7 @@ public class Game {
     private void initializeRound(){
         System.out.println("New Round!");
         System.out.println("Round "+roundNumber);
-        board.initializeBoard(playerWithMostSeeds());
+        board.initializeBoard();
     }
 
     public void playRound(){
@@ -244,10 +244,10 @@ public class Game {
     }
 
     public int playerWithMostSeeds(){
-        if (board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(0)).getSeeds() > board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(1)).getSeeds()){
-            return 0;
-        } else if (board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(0)).getSeeds() == board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(1)).getSeeds()){
+        if (board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(0)).getSeeds() == board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(1)).getSeeds()){
             return -1;
+        } else if (board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(0)).getSeeds() > board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(1)).getSeeds()){
+            return 0;
         } else {
             return 1;
         }

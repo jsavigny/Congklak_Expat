@@ -23,7 +23,13 @@ public class Board {
         }
     }
 
-    public void initializeBoard(int winner){
+    public void initializeBoard(){
+        int winner;
+        if (holes.get(Player.STORAGE_HOLE_INDEX.get(0)).getSeeds() > holes.get(Player.STORAGE_HOLE_INDEX.get(1)).getSeeds()){
+            winner = 0;
+        } else {
+            winner = 1;
+        }
         int loser = Player.getOpponentNumber(winner);
         // Set winner side
         for (int i = Player.STORAGE_HOLE_INDEX.get(winner) - 1; i >= Player.STORAGE_HOLE_INDEX.get(winner) - 7; i--){

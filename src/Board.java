@@ -2,6 +2,9 @@ import java.util.ArrayList;
 
 import static java.lang.Integer.min;
 
+/**
+ * Class representation of a board
+ */
 public class Board {
     /*
              8  9 10 11 12 13 14
@@ -10,8 +13,13 @@ public class Board {
             <7><7><7><7><7><7><7>
              6  5  4  3  2  1  0
      */
+
+    // The holes in the board
     private ArrayList<Hole> holes;
 
+    /**
+     * Constructor
+     */
     public Board(){
         holes = new ArrayList<>(16);
         for (int i=0; i<16; i++){
@@ -23,55 +31,74 @@ public class Board {
         }
     }
 
+    /**
+     * Method to initialize board on the beginning of the round
+     * Set the side with the more shells fully, and put the remainder on the storage hole
+     * Set the side with the fewer shells with as many holes with 7 shells, and divide the remainder to the remaining
+     * holes
+     * Set the the unfully filled holes as ngacang holes (max 3)
+     */
     public void initializeBoard(){
         int winner;
-        if (holes.get(Player.STORAGE_HOLE_INDEX.get(0)).getSeeds() > holes.get(Player.STORAGE_HOLE_INDEX.get(1)).getSeeds()){
+        if (holes.get(getPlayerStorageHoleIndex(0)).getSeeds() > holes.get(getPlayerStorageHoleIndex(1)).getSeeds()){
             winner = 0;
         } else {
             winner = 1;
         }
         int loser = Player.getOpponentNumber(winner);
         // Set winner side
-        for (int i = Player.STORAGE_HOLE_INDEX.get(winner) - 1; i >= Player.STORAGE_HOLE_INDEX.get(winner) - 7; i--){
+        for (int i = getPlayerStorageHoleIndex(winner) - 1; i >= getPlayerStorageHoleIndex(winner) - 7; i--){
             holes.get(i).setSeeds(7);
             holes.get(i).setNgacang(false);
         }
-        holes.get(Player.STORAGE_HOLE_INDEX.get(winner)).addSeeds(-49);
+        holes.get(getPlayerStorageHoleIndex(winner)).addSeeds(-49);
 
         // Set loser side
-        int loserSeeds = holes.get(Player.STORAGE_HOLE_INDEX.get(loser)).getSeeds();
+        int loserSeeds = holes.get(getPlayerStorageHoleIndex(loser)).getSeeds();
         int fullyFilledHoles = loserSeeds / 7;
         int ngacangHoles = min(3, 7 - fullyFilledHoles);
-        for (int i = Player.STORAGE_HOLE_INDEX.get(loser) - 1; i >= Player.STORAGE_HOLE_INDEX.get(loser) - fullyFilledHoles; i--){
+        for (int i = getPlayerStorageHoleIndex(loser) - 1; i >= getPlayerStorageHoleIndex(loser) - fullyFilledHoles; i--){
             holes.get(i).setSeeds(7);
         }
 
         int remSeeds = loserSeeds % 7;
         int unfullyFilledHoles = 7 - fullyFilledHoles;
-        for (int i = Player.STORAGE_HOLE_INDEX.get(loser) - fullyFilledHoles - 1; i >= Player.STORAGE_HOLE_INDEX.get(loser) - 7; i--){
+        for (int i = getPlayerStorageHoleIndex(loser) - fullyFilledHoles - 1; i >= getPlayerStorageHoleIndex(loser) - 7; i--){
             int val = (remSeeds + unfullyFilledHoles - 1) / unfullyFilledHoles;
             holes.get(i).setSeeds(val);
             remSeeds -= val;
             unfullyFilledHoles--;
         }
-        for (int i = Player.STORAGE_HOLE_INDEX.get(loser) - 7; i < Player.STORAGE_HOLE_INDEX.get(loser) - 7 + ngacangHoles; i++){
+        for (int i = getPlayerStorageHoleIndex(loser) - 7; i < getPlayerStorageHoleIndex(loser) - 7 + ngacangHoles; i++){
             holes.get(i).setNgacang(true);
         }
-        for (int i = Player.STORAGE_HOLE_INDEX.get(loser) - 7 + ngacangHoles; i < Player.STORAGE_HOLE_INDEX.get(loser); i++){
+        for (int i = getPlayerStorageHoleIndex(loser) - 7 + ngacangHoles; i < getPlayerStorageHoleIndex(loser); i++){
             holes.get(i).setNgacang(false);
         }
-        holes.get(Player.STORAGE_HOLE_INDEX.get(loser)).setSeeds(0);
+        holes.get(getPlayerStorageHoleIndex(loser)).setSeeds(0);
     }
 
+    /**
+     * Method for sweeping the remaining shells on the board (and add them to the storage holes) after the round ends
+     */
     public void sweepBoard(){
         for (int side = 0; side < 2; side++) {
             int sum = 0;
-            for (int i = Player.STORAGE_HOLE_INDEX.get(side) - 7; i < Player.STORAGE_HOLE_INDEX.get(side); i++) {
+            for (int i = getPlayerStorageHoleIndex(side) - 7; i < getPlayerStorageHoleIndex(side); i++) {
                 sum += holes.get(i).getSeeds();
                 holes.get(i).setSeeds(0);
             }
-            holes.get(Player.STORAGE_HOLE_INDEX.get(side)).addSeeds(sum);
+            holes.get(getPlayerStorageHoleIndex(side)).addSeeds(sum);
         }
+    }
+
+    /**
+     * Method to get the index of a player's storage hole
+     * @param numPlayer the player number
+     * @return index of the player's storage hole
+     */
+    public int getPlayerStorageHoleIndex(int numPlayer){
+        return 8 * (numPlayer + 1) - 1;
     }
 
     public ArrayList<Hole> getHoles() {
@@ -82,6 +109,10 @@ public class Board {
         this.holes = holes;
     }
 
+    /**
+     * toString method for printing the board
+     * @return String representation of the board
+     */
     public String toString(){
        return
                 "_______________________________________________________________________\n"+

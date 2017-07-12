@@ -1,21 +1,29 @@
 import java.util.HashMap;
 
+/**
+ * Class representation of a player
+ */
 public class Player {
+    // The score of the player
     private int score;
+
+    // Has the player gone around the board at least once?
     private boolean hasGoneAround;
 
-    public static final HashMap<Integer, Integer> STORAGE_HOLE_INDEX = new HashMap<>();
-    static {
-        STORAGE_HOLE_INDEX.put(0,7);
-        STORAGE_HOLE_INDEX.put(1,15);
-    }
-
+    /**
+     * Method to get the other player's number
+     * @param number current player's number
+     * @return other player's number
+     */
     public static int getOpponentNumber(int number){
         return number ^ 1;
     }
 
-    public Player(int score){
-        this.score = score;
+    /**
+     * Constructor
+     */
+    public Player(){
+        this.score = 0;
         this.hasGoneAround = false;
     }
 

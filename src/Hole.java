@@ -1,8 +1,16 @@
+/**
+ * Class representation of a hole
+ */
 public class Hole {
     private int seeds;
     private boolean isNgacang;
     private boolean isStorage;
 
+    /**
+     * Constructor
+     * @param isStorage is this hole a storage hole?
+     * @param seeds how many seed to initialize in this hole
+     */
     public Hole(boolean isStorage, int seeds){
         this.isStorage = isStorage;
         this.seeds = seeds;
@@ -37,6 +45,10 @@ public class Hole {
         isStorage = storage;
     }
 
+    /**
+     * For printing purpose
+     * @return < %02dk >
+     */
     public String toString(){
         String s;
         String kacang = " ";

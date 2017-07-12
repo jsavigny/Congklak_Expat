@@ -4,10 +4,10 @@ public class Player {
     private int score;
     private boolean hasGoneAround;
 
-    public static final HashMap<Integer, Integer> STORAGE_HOLE = new HashMap<>();
+    public static final HashMap<Integer, Integer> STORAGE_HOLE_INDEX = new HashMap<>();
     static {
-        STORAGE_HOLE.put(0,7);
-        STORAGE_HOLE.put(1,15);
+        STORAGE_HOLE_INDEX.put(0,7);
+        STORAGE_HOLE_INDEX.put(1,15);
     }
 
     public static int getOpponentNumber(int number){

@@ -11,9 +11,8 @@ public class Board {
              6  5  4  3  2  1  0
      */
     private ArrayList<Hole> holes;
-    private static Board board;
 
-    private Board(){
+    public Board(){
         holes = new ArrayList<>(16);
         for (int i=0; i<16; i++){
             if (i==7 || i ==15){
@@ -24,49 +23,38 @@ public class Board {
         }
     }
 
-    public static Board getInstance(){
-        if (board == null){
-            board = new Board();
-        }
-        return board;
-    }
-
-    public int getPlayerStorageSeeds(int numPlayer){
-            return holes.get(Player.STORAGE_HOLE.get(numPlayer)).getSeeds();
-    }
-
     public void initializeBoard(int winner){
         int loser = Player.getOpponentNumber(winner);
         // Set winner side
-        for (int i = Player.STORAGE_HOLE.get(winner) - 1; i >= Player.STORAGE_HOLE.get(winner) - 7; i--){
+        for (int i = Player.STORAGE_HOLE_INDEX.get(winner) - 1; i >= Player.STORAGE_HOLE_INDEX.get(winner) - 7; i--){
             holes.get(i).setSeeds(7);
             holes.get(i).setNgacang(false);
         }
-        holes.get(Player.STORAGE_HOLE.get(winner)).addSeeds(-49);
+        holes.get(Player.STORAGE_HOLE_INDEX.get(winner)).addSeeds(-49);
 
         // Set loser side
-        int loserSeeds = holes.get(Player.STORAGE_HOLE.get(loser)).getSeeds();
+        int loserSeeds = holes.get(Player.STORAGE_HOLE_INDEX.get(loser)).getSeeds();
         int fullyFilledHoles = loserSeeds / 7;
         int ngacangHoles = min(3, 7 - fullyFilledHoles);
-        for (int i = Player.STORAGE_HOLE.get(loser) - 1; i >= Player.STORAGE_HOLE.get(loser) - fullyFilledHoles; i--){
+        for (int i = Player.STORAGE_HOLE_INDEX.get(loser) - 1; i >= Player.STORAGE_HOLE_INDEX.get(loser) - fullyFilledHoles; i--){
             holes.get(i).setSeeds(7);
         }
 
         int remSeeds = loserSeeds % 7;
         int unfullyFilledHoles = 7 - fullyFilledHoles;
-        for (int i = Player.STORAGE_HOLE.get(loser) - fullyFilledHoles - 1; i >= Player.STORAGE_HOLE.get(loser) - 7; i--){
+        for (int i = Player.STORAGE_HOLE_INDEX.get(loser) - fullyFilledHoles - 1; i >= Player.STORAGE_HOLE_INDEX.get(loser) - 7; i--){
             int val = (remSeeds + unfullyFilledHoles - 1) / unfullyFilledHoles;
             holes.get(i).setSeeds(val);
             remSeeds -= val;
             unfullyFilledHoles--;
         }
-        for (int i = Player.STORAGE_HOLE.get(loser) - 7; i < Player.STORAGE_HOLE.get(loser) - 7 + ngacangHoles; i++){
+        for (int i = Player.STORAGE_HOLE_INDEX.get(loser) - 7; i < Player.STORAGE_HOLE_INDEX.get(loser) - 7 + ngacangHoles; i++){
             holes.get(i).setNgacang(true);
         }
-        for (int i = Player.STORAGE_HOLE.get(loser) - 7 + ngacangHoles; i < Player.STORAGE_HOLE.get(loser); i++){
+        for (int i = Player.STORAGE_HOLE_INDEX.get(loser) - 7 + ngacangHoles; i < Player.STORAGE_HOLE_INDEX.get(loser); i++){
             holes.get(i).setNgacang(false);
         }
-        holes.get(Player.STORAGE_HOLE.get(loser)).setSeeds(0);
+        holes.get(Player.STORAGE_HOLE_INDEX.get(loser)).setSeeds(0);
 
     }
 

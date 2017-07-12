@@ -8,10 +8,17 @@ public class Game {
     private boolean isGameOver;
     private int roundNumber;
     private int turn;
+    private static Game game;
 
+    public static Game getInstance(){
+        if (game == null){
+            game = new Game();
+        }
+        return game;
+    }
 
-    public Game(){
-        board = Board.getInstance();
+    private Game(){
+        board = new Board();
         Player player1 = new Player(0);
         Player player2 = new Player(0);
         Players = new ArrayList<>();
@@ -69,16 +76,16 @@ public class Game {
     }
 
     private boolean isInMyZone(int index){
-        return (index >= Player.STORAGE_HOLE.get(turn) - 7 && index < Player.STORAGE_HOLE.get(turn));
+        return (index >= Player.STORAGE_HOLE_INDEX.get(turn) - 7 && index < Player.STORAGE_HOLE_INDEX.get(turn));
     }
 
     private void snipe(int index){
         System.out.println("Nembak! "+ index);
         int oppositeIndex = 14 - (index);
-        board.getHoles().get(Player.STORAGE_HOLE.get(turn)).addSeeds(board.getHoles().get(index).getSeeds());
+        board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(turn)).addSeeds(board.getHoles().get(index).getSeeds());
         board.getHoles().get(index).setSeeds(0);
         if (!board.getHoles().get(oppositeIndex).isNgacang()) {
-            board.getHoles().get(Player.STORAGE_HOLE.get(turn)).addSeeds(board.getHoles().get(oppositeIndex).getSeeds());
+            board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(turn)).addSeeds(board.getHoles().get(oppositeIndex).getSeeds());
             board.getHoles().get(oppositeIndex).setSeeds(0);
         }
     }
@@ -87,7 +94,7 @@ public class Game {
         boolean isOut = false;
         int [] sums = new int[2];
         for (int i = 0; i < 2; i++){
-            for (int j = Player.STORAGE_HOLE.get(i) - 7; j < Player.STORAGE_HOLE.get(i); j++){
+            for (int j = Player.STORAGE_HOLE_INDEX.get(i) - 7; j < Player.STORAGE_HOLE_INDEX.get(i); j++){
                 if (!board.getHoles().get(j).isNgacang()){
                     sums[i] += board.getHoles().get(j).getSeeds();
                 }
@@ -103,24 +110,24 @@ public class Game {
     private void sweepBoard(){
         for (int side = 0; side < 2; side++) {
             int sum = 0;
-            for (int i = Player.STORAGE_HOLE.get(side) - 7; i < Player.STORAGE_HOLE.get(side); i++) {
+            for (int i = Player.STORAGE_HOLE_INDEX.get(side) - 7; i < Player.STORAGE_HOLE_INDEX.get(side); i++) {
                 sum += board.getHoles().get(i).getSeeds();
                 board.getHoles().get(i).setSeeds(0);
             }
-            board.getHoles().get(Player.STORAGE_HOLE.get(side)).addSeeds(sum);
+            board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(side)).addSeeds(sum);
         }
     }
 
     private void setPlayerScores(){
         for (int i = 0; i < 2; i++){
-            Players.get(i).setScore(board.getPlayerStorageSeeds(i));
+            Players.get(i).setScore(board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(i)).getSeeds());
         }
     }
 
     private void initializeRound(){
         System.out.println("New Round!");
         System.out.println("Round "+roundNumber);
-        board.initializeBoard(playerWon());
+        board.initializeBoard(playerWithMostSeeds());
     }
 
     public void playRound(){
@@ -130,7 +137,7 @@ public class Game {
         boolean isEndRound = false;
         while (!isEndRound){
             printGame();
-            int index = getIndexAI();
+            int index = getIndex();
             distributeSeeds(index);
             isEndRound = isGameOver();
             if (isOutOfShells()){
@@ -139,7 +146,7 @@ public class Game {
                 switchTurn();
                 sweepBoard();
                 System.out.println(board);
-                if (board.getHoles().get(Player.STORAGE_HOLE.get(0)).getSeeds() == 0 || board.getHoles().get(Player.STORAGE_HOLE.get(1)).getSeeds() == 0){
+                if (board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(0)).getSeeds() == 0 || board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(1)).getSeeds() == 0){
                     setGameOver(true);
                 } else {
                     System.out.println("Round " + roundNumber + " ends.");
@@ -161,7 +168,7 @@ public class Game {
     }
 
     private boolean canDropShellsHere(int index){
-        boolean isEnemyStorageHole = ((index) == Player.STORAGE_HOLE.get(Player.getOpponentNumber(turn)));
+        boolean isEnemyStorageHole = ((index) == Player.STORAGE_HOLE_INDEX.get(Player.getOpponentNumber(turn)));
         boolean isNgacang = board.getHoles().get(index).isNgacang() && !isInMyZone(index);
         return !isEnemyStorageHole && !isNgacang;
     }
@@ -182,7 +189,7 @@ public class Game {
                 }
                 board.getHoles().get(index).addSeeds(1);
             }
-            if (index == Player.STORAGE_HOLE.get(0) || index == Player.STORAGE_HOLE.get(1)){ // Is in storage hole atau hole ngacang (?), lanjut milih
+            if (index == Player.STORAGE_HOLE_INDEX.get(turn)){ // Is in storage hole atau hole ngacang (?), lanjut milih
                 isEndTurn = true;
             } else if (board.getHoles().get(index).getSeeds() != 1) { // Tidak kosong, lanjut main dengan mengambil
                 // Carry on
@@ -205,30 +212,28 @@ public class Game {
         return isInMyZone(index) && !board.getHoles().get(index).isNgacang() && board.getHoles().get(index).getSeeds() != 0;
     }
 
-    private int getIndexAI(){
+    private int getIndex(){
         Scanner scan = new Scanner(System.in);
         System.out.println("Pick a hole!");
         String s;
-        int index = 0;
+        int index = -1;
         if (turn == 0) {
-            s = scan.next();
-            if (s.toLowerCase().equals("quit")) {
-                setGameOver(true);
-            } else {
-                index = Integer.parseInt(s);
+            if (scan.hasNextInt()){
+                index = scan.nextInt();
                 while (!canPickShellsHere(index)) {
                     System.out.println("Invalid Move!");
-                    s = scan.next();
-                    if (s.toLowerCase().equals("quit")) {
-                        setGameOver(true);
+                    if (scan.hasNextInt()){
+                        index = scan.nextInt();
                     } else {
-                        index = Integer.parseInt(s);
+                        setGameOver(true);
+                        break;
                     }
                 }
+            } else {
+                setGameOver(true);
             }
         } else { // Player 2 Turn
             while (!canPickShellsHere(index)) {
-//                System.out.println("Invalid Move!");
                 Random rand = new Random();
                 index  = rand.nextInt(7) + 8;
             }
@@ -238,11 +243,22 @@ public class Game {
         return index;
     }
 
-    public int playerWon(){
-        if (board.getPlayerStorageSeeds(0) > board.getPlayerStorageSeeds(1)){
+    public int playerWithMostSeeds(){
+        if (board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(0)).getSeeds() > board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(1)).getSeeds()){
             return 0;
+        } else if (board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(0)).getSeeds() == board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(1)).getSeeds()){
+            return -1;
         } else {
             return 1;
+        }
+    }
+
+    public void printWinner(){
+        int playerWon = playerWithMostSeeds();
+        if (playerWon == -1){
+            System.out.println("It's a tie!");
+        } else {
+            System.out.println("Congratulations! Player " + (playerWon + 1) + " won!");
         }
     }
 }

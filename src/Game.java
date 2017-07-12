@@ -9,6 +9,7 @@ public class Game {
     private int roundNumber;
     private int turn;
     private static Game game;
+    private boolean isMultiPlayer;
 
     public static Game getInstance(){
         if (game == null){
@@ -26,7 +27,24 @@ public class Game {
         Players.add(player2);
         isGameOver = false;
         roundNumber = 1;
+        isMultiPlayer = false;
         turn = 0;
+    }
+
+    public ArrayList<Player> getPlayers() {
+        return Players;
+    }
+
+    public void setPlayers(ArrayList<Player> players) {
+        Players = players;
+    }
+
+    public boolean isMultiPlayer() {
+        return isMultiPlayer;
+    }
+
+    public void setMultiPlayer(boolean multiPlayer) {
+        isMultiPlayer = multiPlayer;
     }
 
     public Board getBoard() {
@@ -80,7 +98,7 @@ public class Game {
     }
 
     private void snipe(int index){
-        System.out.println("Nembak! "+ index);
+        System.out.println("Player "+ (turn+1) + " is sniping! "+ index);
         int oppositeIndex = 14 - (index);
         board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(turn)).addSeeds(board.getHoles().get(index).getSeeds());
         board.getHoles().get(index).setSeeds(0);
@@ -107,17 +125,6 @@ public class Game {
         return isOut;
     }
 
-    private void sweepBoard(){
-        for (int side = 0; side < 2; side++) {
-            int sum = 0;
-            for (int i = Player.STORAGE_HOLE_INDEX.get(side) - 7; i < Player.STORAGE_HOLE_INDEX.get(side); i++) {
-                sum += board.getHoles().get(i).getSeeds();
-                board.getHoles().get(i).setSeeds(0);
-            }
-            board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(side)).addSeeds(sum);
-        }
-    }
-
     private void setPlayerScores(){
         for (int i = 0; i < 2; i++){
             Players.get(i).setScore(board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(i)).getSeeds());
@@ -127,6 +134,7 @@ public class Game {
     private void initializeRound(){
         System.out.println("New Round!");
         System.out.println("Round "+roundNumber);
+        System.out.println("Player "+ (turn+1) + " moves first! (menang jalan)");
         board.initializeBoard();
     }
 
@@ -142,9 +150,9 @@ public class Game {
             isEndRound = isGameOver();
             if (isOutOfShells()){
                 isEndRound = true;
-                System.out.println("Player "+(turn+1)+" is out of move (kalah jalan)");
+                System.out.println("Player "+(turn+1)+" is out of move! (kalah jalan)");
                 switchTurn();
-                sweepBoard();
+                board.sweepBoard();
                 System.out.println(board);
                 if (board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(0)).getSeeds() == 0 || board.getHoles().get(Player.STORAGE_HOLE_INDEX.get(1)).getSeeds() == 0){
                     setGameOver(true);
@@ -172,6 +180,7 @@ public class Game {
         int firstIndex = index;
         int latestIndex = index;
         while (!isEndTurn) {
+            System.out.println("Player "+ (turn+1) + " is taking shells from " + index);
             int hand = board.getHoles().get(index).getSeeds();
             board.getHoles().get(index).setSeeds(0);
             for (int i = hand; i > 0; i--) {
@@ -183,6 +192,7 @@ public class Game {
                 }
                 board.getHoles().get(index).addSeeds(1);
             }
+            System.out.println("Player "+ (turn+1) + " is dropping the last shell in " + index);
             if (board.getHoles().get(index).isStorage()){ // Is in storage hole atau hole ngacang (?), lanjut milih
                 isEndTurn = true;
             } else if (board.getHoles().get(index).getSeeds() != 1) { // Tidak kosong, lanjut main dengan mengambil
@@ -217,7 +227,7 @@ public class Game {
         System.out.println("Pick a hole!");
         String s;
         int index = -1;
-        if (turn == 0) {
+        if (turn == 0 || isMultiPlayer) {
             if (scan.hasNextInt()){
                 index = scan.nextInt();
                 while (!canPickShellsHere(index)) {
@@ -232,7 +242,7 @@ public class Game {
             } else {
                 setGameOver(true);
             }
-        } else { // Player 2 Turn
+        } else { // Computer (Single Player) Turn
             while (!canPickShellsHere(index)) {
                 Random rand = new Random();
                 index  = rand.nextInt(7) + 8;

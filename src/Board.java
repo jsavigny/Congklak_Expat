@@ -61,7 +61,17 @@ public class Board {
             holes.get(i).setNgacang(false);
         }
         holes.get(Player.STORAGE_HOLE_INDEX.get(loser)).setSeeds(0);
+    }
 
+    public void sweepBoard(){
+        for (int side = 0; side < 2; side++) {
+            int sum = 0;
+            for (int i = Player.STORAGE_HOLE_INDEX.get(side) - 7; i < Player.STORAGE_HOLE_INDEX.get(side); i++) {
+                sum += holes.get(i).getSeeds();
+                holes.get(i).setSeeds(0);
+            }
+            holes.get(Player.STORAGE_HOLE_INDEX.get(side)).addSeeds(sum);
+        }
     }
 
     public ArrayList<Hole> getHoles() {

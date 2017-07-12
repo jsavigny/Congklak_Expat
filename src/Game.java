@@ -167,12 +167,6 @@ public class Game {
         turn = Player.getOpponentNumber(turn);
     }
 
-    private boolean canDropShellsHere(int index){
-        boolean isEnemyStorageHole = ((index) == Player.STORAGE_HOLE_INDEX.get(Player.getOpponentNumber(turn)));
-        boolean isNgacang = board.getHoles().get(index).isNgacang() && !isInMyZone(index);
-        return !isEnemyStorageHole && !isNgacang;
-    }
-
     private void distributeSeeds(int index){
         boolean isEndTurn = isGameOver();
         int firstIndex = index;
@@ -189,13 +183,13 @@ public class Game {
                 }
                 board.getHoles().get(index).addSeeds(1);
             }
-            if (index == Player.STORAGE_HOLE_INDEX.get(turn)){ // Is in storage hole atau hole ngacang (?), lanjut milih
+            if (board.getHoles().get(index).isStorage()){ // Is in storage hole atau hole ngacang (?), lanjut milih
                 isEndTurn = true;
             } else if (board.getHoles().get(index).getSeeds() != 1) { // Tidak kosong, lanjut main dengan mengambil
                 // Carry on
                 System.out.println(board);
             } else if (board.getHoles().get(index).getSeeds() == 1){ // Kosong
-                if (latestIndex-firstIndex >= 16){
+                if (latestIndex-firstIndex >= 16){ // Udah muter sekali
                     getActivePlayer().setHasGoneAround(true);
                 }
                 if ((getActivePlayer().isHasGoneAround()) && (isInMyZone(index))){ // Nembak, kalau udah muter sekali dan berhenti di sisi pemain yang bermain
@@ -210,6 +204,12 @@ public class Game {
 
     private boolean canPickShellsHere(int index){
         return isInMyZone(index) && !board.getHoles().get(index).isNgacang() && board.getHoles().get(index).getSeeds() != 0;
+    }
+
+    private boolean canDropShellsHere(int index){
+        boolean isEnemyStorageHole = ((index) == Player.STORAGE_HOLE_INDEX.get(Player.getOpponentNumber(turn)));
+        boolean isNgacang = board.getHoles().get(index).isNgacang() && !isInMyZone(index);
+        return !isEnemyStorageHole && !isNgacang;
     }
 
     private int getIndex(){
